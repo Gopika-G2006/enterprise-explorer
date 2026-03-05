@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Database (large file - hosted separately)
+backend/enterprises.db
+
+# ChromaDB vector store (rebuilt on deploy)
+backend/chroma_db/
+
+# Node
+node_modules/
+node/
+node.zip
+
+# Misc
+.DS_Store
+Thumbs.db
+tmp_verify*.py
+proxy_server.js
+proxy_server.py
