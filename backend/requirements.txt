@@ -1,14 +1,11 @@
-fastapi==0.111.0
-uvicorn[standard]==0.30.1
-pandas==2.2.2
-openpyxl==3.1.5
-python-multipart==0.0.9
-
-# RAG Dependencies
-python-dotenv==1.0.1
-langchain==0.2.14
-langchain-community==0.2.12
-langchain-core==0.2.34
-langchain-groq==0.1.9
-# chromadb==0.4.24 (Removed for Vercel deployment - too large)
-# sentence-transformers==2.5.1 (Removed for Vercel deployment - too large)
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.1
+pandas>=2.0.0
+openpyxl>=3.1.0
+python-multipart>=0.0.9
+python-dotenv>=1.0.0
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-core>=0.2.0
+langchain-groq>=0.1.0
+langchain-openai>=0.1.0
