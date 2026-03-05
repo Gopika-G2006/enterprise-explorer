@@ -8,6 +8,7 @@ import csv
 import os
 import sqlite3
 from typing import Optional
+from langchain.prompts import PromptTemplate
 
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -508,3 +509,4 @@ def chat(req: ChatRequest):
 # ──────────────────────────────────────────────────────────────────────────────
 # In Vercel, static files are served via vercel.json routes
 # Do not mount static files inside FastAPI here.
+
