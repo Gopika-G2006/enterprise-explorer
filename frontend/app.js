@@ -466,23 +466,115 @@ const chatClose = $('chat-close');
 const chatInput = $('chat-input');
 const chatSend = $('chat-send');
 const chatMessages = $('chat-messages');
+const chatMic = $('chat-mic');
+const chatSpeaker = $('chat-speaker');
+const voiceIndicator = $('voice-indicator');
 
+// ── TTS state ────────────────────────────────────────────────────
+let ttsEnabled = true;
+
+function speakText(text) {
+  if (!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-IN';
+  utter.rate = 1.0;
+  utter.pitch = 1.0;
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v =>
+    v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female'))
+  );
+  if (preferred) utter.voice = preferred;
+  window.speechSynthesis.speak(utter);
+}
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+chatSpeaker.addEventListener('click', () => {
+  ttsEnabled = !ttsEnabled;
+  chatSpeaker.textContent = ttsEnabled ? '🔊' : '🔇';
+  chatSpeaker.classList.toggle('muted', !ttsEnabled);
+  if (!ttsEnabled && window.speechSynthesis) window.speechSynthesis.cancel();
+});
+
+// ── Speech-to-Text setup ─────────────────────────────────────────
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isRecording = false;
+
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.continuous = false;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    chatMic.classList.add('recording');
+    voiceIndicator.classList.add('active');
+    chatInput.placeholder = 'Listening...';
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    chatInput.value = transcript;
+    stopRecording();
+    sendChatMessage();
+  };
+
+  recognition.onerror = (e) => {
+    console.warn('Speech recognition error:', e.error);
+    stopRecording();
+    if (e.error === 'not-allowed') {
+      chatInput.placeholder = 'Mic access denied — check browser permissions';
+      setTimeout(() => { chatInput.placeholder = 'Ask me anything...'; }, 3500);
+    }
+  };
+
+  recognition.onend = () => stopRecording();
+
+  chatMic.addEventListener('click', () => {
+    if (isRecording) {
+      recognition.stop();
+    } else {
+      try { recognition.start(); } catch (err) { console.warn('STT start error:', err); }
+    }
+  });
+} else {
+  // Gracefully hide mic on unsupported browsers (Firefox, iOS Safari)
+  if (chatMic) chatMic.style.display = 'none';
+}
+
+function stopRecording() {
+  isRecording = false;
+  chatMic.classList.remove('recording');
+  voiceIndicator.classList.remove('active');
+  chatInput.placeholder = 'Ask me anything...';
+}
+
+// ── Chat open / close ─────────────────────────────────────────────
 chatToggle.addEventListener('click', () => chatWindow.classList.toggle('open'));
-chatClose.addEventListener('click', () => chatWindow.classList.remove('open'));
+chatClose.addEventListener('click', () => {
+  chatWindow.classList.remove('open');
+  if (isRecording && recognition) recognition.stop();
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+});
 
+// ── Send message ──────────────────────────────────────────────────
 async function sendChatMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
 
-  // Add user message
   appendMessage(text, 'user');
   chatInput.value = '';
 
-  // Show typing or loading
-  const loadingId = 'msg-' + Date.now();
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
   const loadingMsg = document.createElement('div');
   loadingMsg.className = 'msg bot loading';
-  loadingMsg.id = loadingId;
   loadingMsg.textContent = '...';
   chatMessages.appendChild(loadingMsg);
   chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -494,9 +586,9 @@ async function sendChatMessage() {
       body: JSON.stringify({ message: text })
     });
     const data = await res.json();
-
     loadingMsg.remove();
     appendMessage(data.response, 'bot');
+    speakText(data.response);
   } catch (err) {
     loadingMsg.textContent = '⚠️ Sorry, I could not connect.';
   }
