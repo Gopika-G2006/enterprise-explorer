@@ -1,182 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Enterprise Intelligence Explorer</title>
   <meta name="description" content="Explore Kerala MSME enterprises by industry, activity, and location." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-<!-- ── NAV ──────────────────────────────────────────────────────────────── -->
-<nav class="navbar">
-  <div class="nav-brand">
-    <span class="nav-icon">⚡</span>
-    <span class="nav-title">Enterprise Intelligence Explorer</span>
-  </div>
-  <div class="nav-links">
-    <a href="#" class="nav-link active" data-page="dashboard">🔍 Explore</a>
-    <a href="#" class="nav-link" data-page="analytics">📊 Analytics</a>
-  </div>
-</nav>
+  <!-- ── NAV ──────────────────────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-title">Enterprise Intelligence Explorer</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" data-page="dashboard">🔍 Explore</a>
+      <a href="#" class="nav-link" data-page="analytics">📊 Analytics</a>
+    </div>
+  </nav>
 
-<!-- ── PAGES ────────────────────────────────────────────────────────────── -->
-<div id="page-dashboard" class="page active">
+  <!-- ── PAGES ────────────────────────────────────────────────────────────── -->
+  <div id="page-dashboard" class="page active">
 
-  <!-- Search Hero -->
-  <div class="search-hero">
-    <div class="hero-content">
-      <h1>Discover Kerala Enterprises</h1>
-      <p class="hero-sub">Search across <span id="hero-count">21,645</span> MSME businesses by industry, activity, or name</p>
-      <div class="search-bar-wrapper">
-        <span class="search-icon">🔍</span>
-        <input id="main-search" type="text" placeholder="Search by name, description or activity..." autocomplete="off" />
-        <button id="clear-search" title="Clear">✕</button>
+    <!-- Search Hero -->
+    <div class="search-hero">
+      <div class="hero-content">
+        <h1>Discover Kerala Enterprises</h1>
+        <p class="hero-sub">Search across <span id="hero-count">21,645</span> MSME businesses by industry, activity, or
+          name</p>
+        <div class="search-bar-wrapper">
+          <span class="search-icon">🔍</span>
+          <input id="main-search" type="text" placeholder="Search by name, description or activity..."
+            autocomplete="off" />
+          <button id="clear-search" title="Clear">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+
+      <!-- Sidebar Filters -->
+      <aside class="filter-sidebar">
+        <div class="filter-header">
+          <h3>🎛️ Filters</h3>
+          <button id="clear-filters" class="btn-ghost">Reset</button>
+        </div>
+
+        <div class="filter-group">
+          <label>Category</label>
+          <select id="filter-category">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>District</label>
+          <select id="filter-district">
+            <option value="">All Districts</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Pincode</label>
+          <select id="filter-pincode">
+            <option value="">All Pincodes</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Area / Place</label>
+          <input id="filter-place" type="text" placeholder="e.g. Kochi, Palakkad" />
+        </div>
+        <div class="filter-group">
+          <label>NIC Code</label>
+          <input id="filter-nic" type="text" placeholder="e.g. 13121" />
+        </div>
+
+        <button id="apply-filters" class="btn-primary w-full">Apply Filters</button>
+
+        <div class="filter-stats" id="filter-result-count"></div>
+      </aside>
+
+      <!-- Results Area -->
+      <main class="results-area">
+        <div class="results-toolbar">
+          <span class="results-meta" id="results-meta">Loading...</span>
+          <button id="export-btn" class="btn-export">⬇ Export CSV</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="enterprise-table" id="enterprise-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Enterprise Name</th>
+                <th>District</th>
+                <th>Pincode</th>
+                <th>Description</th>
+                <th>Categories</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr>
+                <td colspan="6" class="loading-cell">
+                  <div class="spinner"></div> Loading enterprises...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ── ANALYTICS PAGE ───────────────────────────────────────────────────── -->
+  <div id="page-analytics" class="page">
+    <div class="analytics-header">
+      <h2>📊 Analytics Dashboard</h2>
+      <p>Insights from <span id="analytics-count">—</span> enterprises across Kerala</p>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card loading-card">Loading...</div>
+      <div class="stat-card loading-card">Loading...</div>
+      <div class="stat-card loading-card">Loading...</div>
+      <div class="stat-card loading-card">Loading...</div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Industry Category Distribution</h3>
+        <div class="chart-container"><canvas id="pie-category"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Top 10 Pincodes by Enterprise Count</h3>
+        <div class="chart-container"><canvas id="bar-pincode"></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <h3>Enterprise Breakdown by Sector</h3>
+        <div class="chart-container"><canvas id="bar-sector"></canvas></div>
       </div>
     </div>
   </div>
 
-  <div class="main-layout">
-
-    <!-- Sidebar Filters -->
-    <aside class="filter-sidebar">
-      <div class="filter-header">
-        <h3>🎛️ Filters</h3>
-        <button id="clear-filters" class="btn-ghost">Reset</button>
-      </div>
-
-      <div class="filter-group">
-        <label>Category</label>
-        <select id="filter-category">
-          <option value="">All Categories</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>District</label>
-        <select id="filter-district">
-          <option value="">All Districts</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Pincode</label>
-        <select id="filter-pincode">
-          <option value="">All Pincodes</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Area / Place</label>
-        <input id="filter-place" type="text" placeholder="e.g. Kochi, Palakkad" />
-      </div>
-      <div class="filter-group">
-        <label>NIC Code</label>
-        <input id="filter-nic" type="text" placeholder="e.g. 13121" />
-      </div>
-
-      <button id="apply-filters" class="btn-primary w-full">Apply Filters</button>
-
-      <div class="filter-stats" id="filter-result-count"></div>
-    </aside>
-
-    <!-- Results Area -->
-    <main class="results-area">
-      <div class="results-toolbar">
-        <span class="results-meta" id="results-meta">Loading...</span>
-        <button id="export-btn" class="btn-export">⬇ Export CSV</button>
-      </div>
-
-      <div class="table-wrapper">
-        <table class="enterprise-table" id="enterprise-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Enterprise Name</th>
-              <th>District</th>
-              <th>Pincode</th>
-              <th>Description</th>
-              <th>Categories</th>
-            </tr>
-          </thead>
-          <tbody id="table-body">
-            <tr><td colspan="6" class="loading-cell"><div class="spinner"></div> Loading enterprises...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination" id="pagination"></div>
-    </main>
-  </div>
-</div>
-
-<!-- ── ANALYTICS PAGE ───────────────────────────────────────────────────── -->
-<div id="page-analytics" class="page">
-  <div class="analytics-header">
-    <h2>📊 Analytics Dashboard</h2>
-    <p>Insights from <span id="analytics-count">—</span> enterprises across Kerala</p>
-  </div>
-
-  <!-- Stat Cards -->
-  <div class="stat-grid" id="stat-grid">
-    <div class="stat-card loading-card">Loading...</div>
-    <div class="stat-card loading-card">Loading...</div>
-    <div class="stat-card loading-card">Loading...</div>
-    <div class="stat-card loading-card">Loading...</div>
-  </div>
-
-  <!-- Charts -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Industry Category Distribution</h3>
-      <div class="chart-container"><canvas id="pie-category"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Top 10 Pincodes by Enterprise Count</h3>
-      <div class="chart-container"><canvas id="bar-pincode"></canvas></div>
-    </div>
-    <div class="chart-card wide">
-      <h3>Enterprise Breakdown by Sector</h3>
-      <div class="chart-container"><canvas id="bar-sector"></canvas></div>
+  <!-- ── ENTERPRISE DETAIL MODAL ──────────────────────────────────────────── -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="detail-modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-body">Loading...</div>
     </div>
   </div>
-</div>
 
-<!-- ── ENTERPRISE DETAIL MODAL ──────────────────────────────────────────── -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal" id="detail-modal">
-    <button class="modal-close" id="modal-close">✕</button>
-    <div id="modal-body">Loading...</div>
-  </div>
-</div>
-
-<!-- ── CHATBOT ────────────────────────────────────────────────── -->
-<div class="chatbot-wrapper" id="chatbot-wrapper">
-  <div class="chat-window" id="chat-window">
-    <div class="chat-header">
-      <div class="chat-title">
-        <span class="chat-status"></span>
-        Enterprise Assistant
+  <!-- ── CHATBOT ────────────────────────────────────────────────── -->
+  <div class="chatbot-wrapper" id="chatbot-wrapper">
+    <div class="chat-window" id="chat-window">
+      <div class="chat-header">
+        <div class="chat-title">
+          <span class="chat-status"></span>
+          Enterprise Assistant
+        </div>
+        <div class="chat-header-actions">
+          <button class="chat-speaker" id="chat-speaker" title="Toggle voice output">🔊</button>
+          <button class="chat-close" id="chat-close">✕</button>
+        </div>
       </div>
-      <button class="chat-close" id="chat-close">✕</button>
-    </div>
-    <div class="chat-messages" id="chat-messages">
-      <div class="msg bot">
-        Hello! I'm your Enterprise Assistant. How can I help you today?
+      <div class="voice-indicator" id="voice-indicator">🔴 Listening...</div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">
+          Hello! I'm your Enterprise Assistant. Ask me anything by typing or using the 🎤 mic button!
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <button id="chat-mic" title="Voice input" aria-label="Start voice input">🎤</button>
+        <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" />
+        <button id="chat-send" title="Send message">▶</button>
       </div>
     </div>
-    <div class="chat-input-area">
-      <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" />
-      <button id="chat-send">▶</button>
-    </div>
+    <button class="chat-toggle" id="chat-toggle" title="Chat with Assistant">
+      <span class="chat-toggle-icon">💬</span>
+    </button>
   </div>
-  <button class="chat-toggle" id="chat-toggle" title="Chat with Assistant">
-    <span class="chat-toggle-icon">💬</span>
-  </button>
-</div>
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>
